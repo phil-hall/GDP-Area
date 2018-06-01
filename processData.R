@@ -40,7 +40,7 @@ data <- timeShift(data,"lastQuarter")
 data$GDPAreaY <- (data$GDPArea / data$GDPArea_lastYear - 1) * 100
 data$GDPAreaQ <- (data$GDPArea / data$GDPArea_lastQuarter - 1) * 100
 
-Trend5yr <- data[data$Date >= max(data$Date) - 5,]
+shortTrend <- data[data$Date >= max(data$Date) - 2.5,]
 
 peak <- data[data$GDPArea == max(data$GDPArea),"Date"]
 

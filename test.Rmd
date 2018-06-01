@@ -1,0 +1,67 @@
+---
+title: "GDPArea"
+author: "Phil Hall"
+date: "26 May 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+source("processData.R")
+library(ggplot2)
+library(plotly)
+
+```
+
+```{r latest, include=FALSE}
+
+lastQ <- data[data$Date == max(data$Date),]
+
+```
+
+Latest Quarterly change
+
+`r lastQ$Date`
+
+`r if (lastQ$GDPAreaQ < 0) {"DOWN"} else {"UP"}` `r round(sqrt(lastQ$GDPAreaQ^2), digits = 1)`%
+
+```{R quarterbars, include=FALSE}
+
+shortTrend$val <- "neg"
+shortTrend$val[shortTrend$GDPAreaQ >= 0] <- "pos"
+
+Qbars <- plot_ly() %>% 
+  add_bars(data = shortTrend, x = ~as.character(Date), y = ~GDPAreaQ, 
+           color = ~val, colors = c("red","blue"), 
+         hoverinfo = 'text', 
+           text = ~paste0(as.character(Date),
+                          '<br>',
+                          round(GDPAreaQ,2))) %>%
+  layout(showlegend = FALSE,
+         xaxis = list(title = ""),
+         yaxis = list(title = "% change since last quarter"))
+
+```
+
+`r Qbars`
+
+```{R yearline, include=FALSE}
+
+Yline <- plot_ly(data = shortTrend, x = ~as.character(Date), y = ~GDPAreaY, type = 'scatter', mode = 'lines',
+                  hoverinfo = 'text', 
+                  text = ~paste0(as.character(Date),
+                          '<br>',
+                          round(GDPAreaY,2))) %>%
+                  layout(showlegend = FALSE,
+                    xaxis = list(title = ""),
+                    yaxis = list(title = "% change since last year")) 
+         
+
+```
+
+`r Yline`
+
+
+

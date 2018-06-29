@@ -3,8 +3,8 @@ source("getData.R")
 library(zoo)
 library(data.table)
 
-GDPCap <- getONSData("PN2","IHXW")
-GDP <- getONSData("PN2","ABMI")
+GDPCap <- getONSData("QNA","IHXW")
+GDP <- getONSData("QNA","ABMI")
 
 data <- merge(GDPCap,GDP[c("label","value")],by="label")
 

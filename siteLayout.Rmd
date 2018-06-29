@@ -1,0 +1,106 @@
+---
+navbar:
+  title: "My Website"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "About"
+      href: about.html
+output: 
+  html_document:
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+source("processData.R")
+library(ggplot2)
+library(plotly)
+library(htmltools)
+
+```
+
+```{r latest, include=FALSE}
+
+lastQ <- data[data$Date == max(data$Date),]
+
+```
+
+
+```{R quarterbars, include=FALSE}
+
+shortTrend$val <- "neg"
+shortTrend$val[shortTrend$GDPAreaQ >= 0] <- "pos"
+
+Qbars <- plot_ly() %>% 
+  add_bars(data = shortTrend, x = ~as.character(Date), y = ~GDPAreaQ, color = ~val, 
+          colors = c("#e74c3c", "#18BC9C"), 
+         hoverinfo = 'text',
+           text = ~paste0(as.character(Date),
+                          '<br>',
+                          round(GDPAreaQ,2),"%")) %>%
+  layout(showlegend = FALSE,
+         xaxis = list(title = "", tickangle = 45),
+         yaxis = list(title = "% change since last quarter", range = c(-0.5,0.5)),
+         margin = list(b = 60, r = 40))
+
+heading <-  div(class="jumbotron", style = if(lastQ$GDPAreaQ < 0) {"background-color:#e74c3c"} else {"background-color:#18BC9C"},
+              h1(paste0(lastQ$Date), style="color:white"),
+              h1(paste0("UK BPPI ",
+                  if (lastQ$GDPAreaQ < 0) {"down "} else {"up "},
+                      round(sqrt(lastQ$GDPAreaQ^2), digits = 1),
+                      "%"), style="color:white")
+            )
+
+test <- div(class="row",
+          div(class="col-md-12",
+            div(class=if (lastQ$GDPAreaQ < 0) {"panel panel-danger"} else {"panel panel-success"},
+              div(class="panel-heading",
+                h3(class="panel-title","Quarterly change")
+              ),
+              div(class="panel-body",
+                Qbars
+              )
+            )
+          )
+        )
+```
+
+`r heading`
+`r test`
+
+```{R yearline, include=FALSE}
+
+Yline <- plot_ly(data = shortTrend, x = ~as.character(Date), y = ~GDPAreaY, type = 'scatter', mode = 'lines',
+                  hoverinfo = 'text', 
+                  text = ~paste0(as.character(Date),
+                          '<br>',
+                          round(GDPAreaY,2),"%")) %>%
+          layout(showlegend = FALSE,
+          xaxis = list(title = "", tickangle = 45),
+          yaxis = list(title = "% change since last year"),
+          margin = list(b = 60, r = 40))
+
+
+yearchange <- div(class="row",
+          div(class="col-md-12",
+            div(class=if (lastQ$GDPAreaQ < 0) {"panel panel-danger"} else {"panel panel-success"},
+              div(class="panel-heading",
+                h3(class="panel-title","Year on year change")
+              ),
+              div(class="panel-body",
+                Yline
+              )
+            )
+          )
+        )
+         
+
+```
+
+`r yearchange`
+
+
+
